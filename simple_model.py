@@ -1,55 +1,65 @@
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 
-# STEP 1: Load the dataset
-# Make sure 'train.csv' is inside the 'data' folder
+# STEP 1: Load dataset
 df = pd.read_csv("data/train.csv")
 
-# STEP 2: Select input features (as per task)
-# GrLivArea = Area, BedroomAbvGr = Bedrooms, FullBath = Bathrooms
+# STEP 2: Features and target
 X = df[['GrLivArea', 'BedroomAbvGr', 'FullBath']]
-
-# Target variable (what we want to predict)
 y = df['SalePrice']
 
-# STEP 3: Split dataset into training and testing sets
-# 80% for training, 20% for testing
+# STEP 3: Train-test split
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.2, random_state=42
 )
 
-# STEP 4: Create and train Linear Regression model
+# STEP 4: Model training
 model = LinearRegression()
 model.fit(X_train, y_train)
 
-# STEP 5: Make predictions on test data
+# STEP 5: Predictions
 y_pred = model.predict(X_test)
 
-# STEP 6: Evaluate model performance
-
-# MAE: Average prediction error
+# STEP 6: Evaluation
 mae = mean_absolute_error(y_test, y_pred)
-
-# MSE: Squared error (penalizes larger errors more)
 mse = mean_squared_error(y_test, y_pred)
-
-# R2 Score: Measures how well the model fits the data (closer to 1 is better)
 r2 = r2_score(y_test, y_pred)
 
-# Print performance results
 print("Model Performance:")
 print(f"MAE: {mae:.2f}")
 print(f"MSE: {mse:.2f}")
 print(f"R2 Score: {r2:.4f}")
 
-# STEP 7: Test the model with a sample input
-# Format: [Area, Bedrooms, Bathrooms]
+# STEP 7: Sample prediction
 sample = [[2000, 3, 2]]
+pred = model.predict(sample)
+print(f"\nPredicted Price for sample house: {pred[0]:.2f}")
 
-# Predict house price for sample input
-prediction = model.predict(sample)
+# STEP 8: GRAPH 1 - Actual vs Predicted
+plt.figure(figsize=(8,6))
+plt.scatter(y_test, y_pred, alpha=0.6)
+plt.xlabel("Actual Prices")
+plt.ylabel("Predicted Prices")
+plt.title("Actual vs Predicted House Prices")
 
-# Print predicted price
-print(f"\nPredicted House Price: {prediction[0]:.2f}")
+# perfect prediction line
+plt.plot([y_test.min(), y_test.max()],
+         [y_test.min(), y_test.max()],
+         color='red')
+
+plt.show()
+
+# STEP 9: GRAPH 2 - Square Footage vs Price (Visual Insight)
+plt.figure(figsize=(8,6))
+plt.scatter(X_test['GrLivArea'], y_test, label="Actual Price", alpha=0.5)
+plt.scatter(X_test['GrLivArea'], y_pred, label="Predicted Price", alpha=0.5)
+
+plt.xlabel("Square Footage (GrLivArea)")
+plt.ylabel("House Price")
+plt.title("Square Footage vs House Price")
+plt.legend()
+
+plt.show()
